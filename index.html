@@ -279,6 +279,37 @@
             text-align: center;
             margin: 20px 0;
         }
+
+        .save-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .save-button {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #4cc9f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .save-button:hover {
+            background: #4cc9f0;
+            color: #1a1a2e;
+        }
+
+        .save-button.reset {
+            border-color: #f72585;
+        }
+
+        .save-button.reset:hover {
+            background: #f72585;
+        }
         
         @media (max-width: 768px) {
             .game-area {
@@ -374,6 +405,12 @@
                 <p class="cost">Стоимость: 120 ₽</p>
             </div>
         </div>
+
+        <div class="save-buttons">
+            <button class="save-button" id="save-game">💾 Сохранить игру</button>
+            <button class="save-button" id="load-game">📂 Загрузить игру</button>
+            <button class="save-button reset" id="reset-game">🔄 Новая игра</button>
+        </div>
     </div>
     
     <div class="notification" id="notification">
@@ -388,13 +425,15 @@
             bypass: 0,
             money: 100,
             isFixed: false,
+            isPerfect: false,
             fixAttempts: 0
         };
         
-        // Константы для починки
+        // Константы
         const REQUIRED_SPEED = 70;
         const REQUIRED_STABILITY = 70;
         const REQUIRED_BYPASS = 70;
+        const PERFECT_VALUE = 100;
         
         // Элементы DOM
         const speedValue = document.getElementById('speed-value');
@@ -419,31 +458,78 @@
         const upgradeCdn = document.getElementById('upgrade-cdn');
         const upgrades = [upgradeServer, upgradeVpn, upgradeCode, upgradeCdn];
         
+        // Функция загрузки из localStorage
+        function loadFromStorage() {
+            const saved = localStorage.getItem('dashubGame');
+            if (saved) {
+                try {
+                    const loadedState = JSON.parse(saved);
+                    gameState = { ...gameState, ...loadedState };
+                    showNotification('Игра загружена!');
+                    updateUI();
+                } catch (e) {
+                    showNotification('Ошибка загрузки');
+                }
+            } else {
+                showNotification('Нет сохраненной игры');
+            }
+        }
+
+        // Функция сохранения в localStorage
+        function saveToStorage() {
+            localStorage.setItem('dashubGame', JSON.stringify(gameState));
+            showNotification('Игра сохранена!');
+        }
+
+        // Функция сброса игры
+        function resetGame() {
+            gameState = {
+                speed: 0,
+                stability: 0,
+                bypass: 0,
+                money: 100,
+                isFixed: false,
+                isPerfect: false,
+                fixAttempts: 0
+            };
+            localStorage.removeItem('dashubGame');
+            showNotification('Новая игра начата!');
+            updateUI();
+        }
+        
         // Функция для блокировки/разблокировки действий
-        function setActionsDisabled(disabled) {
-            // Блокируем кнопку починки
-            fixButton.disabled = disabled;
+        function setActionsDisabled() {
+            // Блокируем кнопку починки если достигнут 70% (рабочее состояние)
+            fixButton.disabled = gameState.isFixed;
             
-            // Блокируем все улучшения
+            // Блокируем улучшения если достигнут 100% (идеальное состояние)
+            const isPerfect = gameState.speed >= PERFECT_VALUE && 
+                             gameState.stability >= PERFECT_VALUE && 
+                             gameState.bypass >= PERFECT_VALUE;
+            
             upgrades.forEach(upgrade => {
-                if (disabled) {
+                if (isPerfect) {
                     upgrade.classList.add('disabled');
                 } else {
                     upgrade.classList.remove('disabled');
                 }
             });
             
-            // Меняем статус и сообщение
-            if (disabled) {
-                dashubStatus.textContent = 'Работает!';
-                dashubStatus.style.color = '#4cc9f0';
-                errorMessage.textContent = 'Дашуб полностью функционирует!';
+            // Обновляем статус и сообщения
+            if (isPerfect) {
+                dashubStatus.textContent = 'Идеально!';
+                dashubStatus.style.color = '#gold';
+                errorMessage.textContent = 'Дашуб работает на 100%! Все улучшения максимальны!';
                 videoPlaceholder.style.display = 'none';
                 videoPlayer.style.display = 'block';
                 playButton.disabled = false;
-                
-                // Показываем сообщение о завершении
-                showNotification('Поздравляем! Дашуб починен! 🎉');
+            } else if (gameState.isFixed) {
+                dashubStatus.textContent = 'Работает!';
+                dashubStatus.style.color = '#4cc9f0';
+                errorMessage.textContent = 'Дашуб работает! Можно улучшать дальше до 100%';
+                videoPlaceholder.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                playButton.disabled = false;
             } else {
                 dashubStatus.textContent = 'Заблокирован';
                 dashubStatus.style.color = '#ff4d4d';
@@ -469,18 +555,30 @@
             stabilityBar.style.width = gameState.stability + '%';
             bypassBar.style.width = gameState.bypass + '%';
             
-            // Проверка на починку
+            // Проверка на рабочее состояние (70%)
             const isFixedNow = gameState.speed >= REQUIRED_SPEED && 
                               gameState.stability >= REQUIRED_STABILITY && 
                               gameState.bypass >= REQUIRED_BYPASS;
             
+            // Проверка на идеальное состояние (100%)
+            const isPerfectNow = gameState.speed >= PERFECT_VALUE && 
+                                gameState.stability >= PERFECT_VALUE && 
+                                gameState.bypass >= PERFECT_VALUE;
+            
             // Если состояние изменилось
             if (isFixedNow !== gameState.isFixed) {
                 gameState.isFixed = isFixedNow;
-                setActionsDisabled(gameState.isFixed);
+                if (isFixedNow && !isPerfectNow) {
+                    showNotification('Дашуб заработал! Можно продолжать улучшения до 100% 🎉');
+                }
             }
             
-            // Если не починено, обновляем сообщение об ошибке
+            gameState.isPerfect = isPerfectNow;
+            
+            // Применяем блокировки
+            setActionsDisabled();
+            
+            // Если не работает, обновляем сообщение об ошибке
             if (!gameState.isFixed) {
                 const problems = [];
                 if (gameState.speed < REQUIRED_SPEED) problems.push('медленная загрузка');
@@ -493,14 +591,16 @@
         
         // Покупка улучшений
         upgradeServer.addEventListener('click', function() {
-            if (gameState.isFixed) {
-                showNotification('Дашуб уже работает! Действия недоступны');
+            if (gameState.speed >= PERFECT_VALUE && 
+                gameState.stability >= PERFECT_VALUE && 
+                gameState.bypass >= PERFECT_VALUE) {
+                showNotification('Все характеристики уже на 100%!');
                 return;
             }
             
             if (gameState.money >= 50) {
                 gameState.money -= 50;
-                gameState.speed += 15;
+                gameState.speed = Math.min(100, gameState.speed + 15);
                 showNotification('Сервер улучшен! Скорость увеличена.');
                 updateUI();
             } else {
@@ -509,14 +609,16 @@
         });
         
         upgradeVpn.addEventListener('click', function() {
-            if (gameState.isFixed) {
-                showNotification('Дашуб уже работает! Действия недоступны');
+            if (gameState.speed >= PERFECT_VALUE && 
+                gameState.stability >= PERFECT_VALUE && 
+                gameState.bypass >= PERFECT_VALUE) {
+                showNotification('Все характеристики уже на 100%!');
                 return;
             }
             
             if (gameState.money >= 75) {
                 gameState.money -= 75;
-                gameState.bypass += 20;
+                gameState.bypass = Math.min(100, gameState.bypass + 20);
                 showNotification('VPN настроен! Блокировки обходятся лучше.');
                 updateUI();
             } else {
@@ -525,14 +627,16 @@
         });
         
         upgradeCode.addEventListener('click', function() {
-            if (gameState.isFixed) {
-                showNotification('Дашуб уже работает! Действия недоступны');
+            if (gameState.speed >= PERFECT_VALUE && 
+                gameState.stability >= PERFECT_VALUE && 
+                gameState.bypass >= PERFECT_VALUE) {
+                showNotification('Все характеристики уже на 100%!');
                 return;
             }
             
             if (gameState.money >= 60) {
                 gameState.money -= 60;
-                gameState.stability += 20;
+                gameState.stability = Math.min(100, gameState.stability + 20);
                 showNotification('Код оптимизирован! Соединение стабильнее.');
                 updateUI();
             } else {
@@ -541,16 +645,18 @@
         });
         
         upgradeCdn.addEventListener('click', function() {
-            if (gameState.isFixed) {
-                showNotification('Дашуб уже работает! Действия недоступны');
+            if (gameState.speed >= PERFECT_VALUE && 
+                gameState.stability >= PERFECT_VALUE && 
+                gameState.bypass >= PERFECT_VALUE) {
+                showNotification('Все характеристики уже на 100%!');
                 return;
             }
             
             if (gameState.money >= 120) {
                 gameState.money -= 120;
-                gameState.speed += 8;
-                gameState.stability += 8;
-                gameState.bypass += 8;
+                gameState.speed = Math.min(100, gameState.speed + 8);
+                gameState.stability = Math.min(100, gameState.stability + 8);
+                gameState.bypass = Math.min(100, gameState.bypass + 8);
                 showNotification('CDN добавлен! Все показатели улучшены.');
                 updateUI();
             } else {
@@ -561,7 +667,7 @@
         // Попытка починить
         fixButton.addEventListener('click', function() {
             if (gameState.isFixed) {
-                showNotification('Дашуб уже работает! Действия недоступны');
+                showNotification('Дашуб уже работает! Используйте улучшения для достижения 100%');
                 return;
             }
             
@@ -573,21 +679,21 @@
             // Сложность починки: с каждым разом дает меньше характеристик
             if (gameState.fixAttempts <= 3) {
                 // Первые 3 попытки дают много характеристик
-                gameState.speed += 5;
-                gameState.stability += 5;
-                gameState.bypass += 5;
+                gameState.speed = Math.min(100, gameState.speed + 5);
+                gameState.stability = Math.min(100, gameState.stability + 5);
+                gameState.bypass = Math.min(100, gameState.bypass + 5);
                 showNotification('Удачная попытка починки! +25₽, +5 ко всем характеристикам');
             } else if (gameState.fixAttempts <= 7) {
                 // Следующие 4 попытки дают меньше
-                gameState.speed += 2;
-                gameState.stability += 2;
-                gameState.bypass += 2;
+                gameState.speed = Math.min(100, gameState.speed + 2);
+                gameState.stability = Math.min(100, gameState.stability + 2);
+                gameState.bypass = Math.min(100, gameState.bypass + 2);
                 showNotification('Обычная попытка починки. +25₽, +2 ко всем характеристикам');
             } else {
                 // Дальше почти не помогает
-                gameState.speed += 1;
-                gameState.stability += 1;
-                gameState.bypass += 1;
+                gameState.speed = Math.min(100, gameState.speed + 1);
+                gameState.stability = Math.min(100, gameState.stability + 1);
+                gameState.bypass = Math.min(100, gameState.bypass + 1);
                 showNotification('Слабая попытка починки. Нужны улучшения! +25₽, +1 ко всем характеристикам');
             }
             
@@ -616,6 +722,11 @@
                 notification.classList.remove('show');
             }, 2000);
         }
+
+        // Обработчики кнопок сохранения
+        document.getElementById('save-game').addEventListener('click', saveToStorage);
+        document.getElementById('load-game').addEventListener('click', loadFromStorage);
+        document.getElementById('reset-game').addEventListener('click', resetGame);
         
         // Инициализация игры
         updateUI();
@@ -625,9 +736,18 @@
             showNotification('Ошибка загрузки видео. Проверьте файл 1.mp4');
         });
 
-        // Добавляем обработчик для кнопки play при ошибке видео
         videoPlayer.addEventListener('ended', function() {
             showNotification('Видео завершено');
+        });
+
+        // Автоматическая загрузка при старте
+        window.addEventListener('load', function() {
+            const saved = localStorage.getItem('dashubGame');
+            if (saved) {
+                if (confirm('Найти сохраненную игру? Нажмите ОК для загрузки')) {
+                    loadFromStorage();
+                }
+            }
         });
     </script>
 </body>
