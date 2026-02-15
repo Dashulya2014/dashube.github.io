@@ -63,7 +63,7 @@
             text-align: center;
         }
         
-        .video-placeholder {
+        .video-container {
             width: 100%;
             height: 250px;
             background: linear-gradient(45deg, #2b2b2b, #1a1a1a);
@@ -74,6 +74,14 @@
             margin-bottom: 20px;
             overflow: hidden;
             position: relative;
+        }
+        
+        .video-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
         }
         
         .video-placeholder::before {
@@ -94,11 +102,45 @@
             margin-left: 5px;
         }
         
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+        
         .error-message {
             color: #ff4d4d;
             font-size: 1.2rem;
             margin: 10px 0;
             text-align: center;
+            position: absolute;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .play-button {
+            background: linear-gradient(90deg, #4cc9f0, #4361ee);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin: 10px auto;
+            display: block;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .play-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(76, 201, 240, 0.5);
+        }
+        
+        .play-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
         
         .stats {
@@ -213,6 +255,12 @@
         .notification.show {
             transform: translateX(0);
         }
+
+        .requirements {
+            font-size: 0.8rem;
+            color: #a0a0a0;
+            margin-top: 10px;
+        }
         
         @media (max-width: 768px) {
             .game-area {
@@ -235,11 +283,18 @@
         <div class="game-area">
             <div class="dashub-player">
                 <h2>Дашуб Плеер</h2>
-                <div class="video-placeholder">
-                    <div class="error-message" id="error-message">Ошибка подключения к серверу</div>
+                <div class="video-container">
+                    <div class="video-placeholder" id="video-placeholder">
+                        <div class="error-message" id="error-message"></div>
+                    </div>
+                    <video id="video-player" controls>
+                        <source src="1.mp4" type="video/mp4">
+                        Ваш браузер не поддерживает видео.
+                    </video>
                 </div>
                 <p>Статус: <span id="dashub-status">Заблокирован</span></p>
-                <button class="action-button" id="fix-button">Попытаться починить</button>
+                <button class="play-button" id="play-button" disabled>▶ Воспроизвести видео</button>
+                <button class="action-button" id="fix-button">Попытаться починить (+25₽)</button>
             </div>
             
             <div class="stats">
@@ -314,8 +369,14 @@
             stability: 0,
             bypass: 0,
             money: 100,
-            isFixed: false
+            isFixed: false,
+            fixAttempts: 0
         };
+        
+        // Константы для починки
+        const REQUIRED_SPEED = 70;
+        const REQUIRED_STABILITY = 70;
+        const REQUIRED_BYPASS = 70;
         
         // Элементы DOM
         const speedValue = document.getElementById('speed-value');
@@ -325,6 +386,9 @@
         const dashubStatus = document.getElementById('dashub-status');
         const errorMessage = document.getElementById('error-message');
         const fixButton = document.getElementById('fix-button');
+        const playButton = document.getElementById('play-button');
+        const videoPlayer = document.getElementById('video-player');
+        const videoPlaceholder = document.getElementById('video-placeholder');
         
         const speedBar = document.getElementById('speed-bar');
         const stabilityBar = document.getElementById('stability-bar');
@@ -332,6 +396,11 @@
         
         // Обновление интерфейса
         function updateUI() {
+            // Ограничиваем значения от 0 до 100
+            gameState.speed = Math.min(100, Math.max(0, gameState.speed));
+            gameState.stability = Math.min(100, Math.max(0, gameState.stability));
+            gameState.bypass = Math.min(100, Math.max(0, gameState.bypass));
+            
             speedValue.textContent = gameState.speed + ' Mbps';
             stabilityValue.textContent = gameState.stability + '%';
             bypassValue.textContent = gameState.bypass + '%';
@@ -341,16 +410,30 @@
             stabilityBar.style.width = gameState.stability + '%';
             bypassBar.style.width = gameState.bypass + '%';
             
-            if (gameState.speed >= 80 && gameState.stability >= 80 && gameState.bypass >= 80) {
+            // Проверка на починку (теперь требуем все показатели выше 70)
+            if (gameState.speed >= REQUIRED_SPEED && gameState.stability >= REQUIRED_STABILITY && gameState.bypass >= REQUIRED_BYPASS) {
+                if (!gameState.isFixed) {
+                    gameState.isFixed = true;
+                    showNotification('Дашуб починен! Теперь можно смотреть видео!');
+                }
                 dashubStatus.textContent = 'Работает!';
                 dashubStatus.style.color = '#4cc9f0';
                 errorMessage.textContent = '';
-                gameState.isFixed = true;
+                videoPlaceholder.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                playButton.disabled = false;
             } else {
+                gameState.isFixed = false;
+                dashubStatus.textContent = 'Заблокирован';
+                dashubStatus.style.color = '#ff4d4d';
+                videoPlaceholder.style.display = 'flex';
+                videoPlayer.style.display = 'none';
+                playButton.disabled = true;
+                
                 const problems = [];
-                if (gameState.speed < 80) problems.push('медленная загрузка');
-                if (gameState.stability < 80) problems.push('нестабильное соединение');
-                if (gameState.bypass < 80) problems.push('блокировки');
+                if (gameState.speed < REQUIRED_SPEED) problems.push('медленная загрузка');
+                if (gameState.stability < REQUIRED_STABILITY) problems.push('нестабильное соединение');
+                if (gameState.bypass < REQUIRED_BYPASS) problems.push('блокировки');
                 
                 errorMessage.textContent = 'Проблемы: ' + problems.join(', ');
             }
@@ -360,8 +443,7 @@
         document.getElementById('upgrade-server').addEventListener('click', function() {
             if (gameState.money >= 50) {
                 gameState.money -= 50;
-                gameState.speed += 20;
-                if (gameState.speed > 100) gameState.speed = 100;
+                gameState.speed += 15; // Уменьшили прирост для баланса
                 showNotification('Сервер улучшен! Скорость увеличена.');
                 updateUI();
             } else {
@@ -372,8 +454,7 @@
         document.getElementById('upgrade-vpn').addEventListener('click', function() {
             if (gameState.money >= 75) {
                 gameState.money -= 75;
-                gameState.bypass += 25;
-                if (gameState.bypass > 100) gameState.bypass = 100;
+                gameState.bypass += 20; // Уменьшили прирост
                 showNotification('VPN настроен! Блокировки обходятся лучше.');
                 updateUI();
             } else {
@@ -384,8 +465,7 @@
         document.getElementById('upgrade-code').addEventListener('click', function() {
             if (gameState.money >= 60) {
                 gameState.money -= 60;
-                gameState.stability += 30;
-                if (gameState.stability > 100) gameState.stability = 100;
+                gameState.stability += 20; // Уменьшили прирост
                 showNotification('Код оптимизирован! Соединение стабильнее.');
                 updateUI();
             } else {
@@ -396,12 +476,9 @@
         document.getElementById('upgrade-cdn').addEventListener('click', function() {
             if (gameState.money >= 120) {
                 gameState.money -= 120;
-                gameState.speed += 10;
-                gameState.stability += 10;
-                gameState.bypass += 10;
-                if (gameState.speed > 100) gameState.speed = 100;
-                if (gameState.stability > 100) gameState.stability = 100;
-                if (gameState.bypass > 100) gameState.bypass = 100;
+                gameState.speed += 8;
+                gameState.stability += 8;
+                gameState.bypass += 8;
                 showNotification('CDN добавлен! Все показатели улучшены.');
                 updateUI();
             } else {
@@ -411,14 +488,45 @@
         
         // Попытка починить
         fixButton.addEventListener('click', function() {
-            if (gameState.isFixed) {
-                showNotification('Дашуб уже работает отлично!');
-                return;
+            gameState.fixAttempts++;
+            
+            // Базовая награда
+            gameState.money += 25;
+            
+            // Сложность починки: с каждым разом дает меньше характеристик
+            if (gameState.fixAttempts <= 3) {
+                // Первые 3 попытки дают много характеристик
+                gameState.speed += 5;
+                gameState.stability += 5;
+                gameState.bypass += 5;
+                showNotification('Удачная попытка починки! +25₽, +5 ко всем характеристикам');
+            } else if (gameState.fixAttempts <= 7) {
+                // Следующие 4 попытки дают меньше
+                gameState.speed += 2;
+                gameState.stability += 2;
+                gameState.bypass += 2;
+                showNotification('Обычная попытка починки. +25₽, +2 ко всем характеристикам');
+            } else {
+                // Дальше почти не помогает
+                gameState.speed += 1;
+                gameState.stability += 1;
+                gameState.bypass += 1;
+                showNotification('Слабая попытка починки. Нужны улучшения! +25₽, +1 ко всем характеристикам');
             }
             
-            gameState.money += 25;
-            showNotification('Попытка починки... +25 ₽');
             updateUI();
+        });
+        
+        // Воспроизведение видео
+        playButton.addEventListener('click', function() {
+            if (gameState.isFixed) {
+                videoPlayer.play().catch(error => {
+                    showNotification('Ошибка воспроизведения видео');
+                    console.error('Video playback error:', error);
+                });
+            } else {
+                showNotification('Сначала почините Дашуб!');
+            }
         });
         
         // Уведомление
@@ -434,6 +542,11 @@
         
         // Инициализация игры
         updateUI();
+
+        // Обработка ошибок видео
+        videoPlayer.addEventListener('error', function() {
+            showNotification('Ошибка загрузки видео. Проверьте файл 1.mp4');
+        });
     </script>
 </body>
 </html>
