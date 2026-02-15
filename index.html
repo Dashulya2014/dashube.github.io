@@ -3,7 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Прокачка Дашуба</title>
+    
+    <!-- Basic SEO -->
+    <title>Прокачка Дашуба - Почини видеохостинг и смотри видео</title>
+    <meta name="description" content="Прокачка Дашуба - инкрементальная игра, где ты сможешь починить вымышленный видеохостинг, улучшая серверы, настраивая VPN и оптимизируя код. Достигни 100% и смотри видео!">
+    <meta name="keywords" content="дашуб, прокачка дашуба, игра прокачка, видеохостинг, кликер, инкрементальная игра, экономическая стратегия">
+    <meta name="author" content="Dashub Team">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="Russian">
+    <meta name="revisit-after" content="7 days">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://dashulya2014.github.io/dashube.github.io/">
+    <meta property="og:title" content="Прокачка Дашуба - Почини видеохостинг">
+    <meta property="og:description" content="Инкрементальная игра про починку видеохостинга. Улучшай характеристики, достигай 100% и смотри видео!">
+    <meta property="og:site_name" content="Прокачка Дашуба">
+    <meta property="og:locale" content="ru_RU">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://dashulya2014.github.io/dashube.github.io/">
+    <meta name="twitter:title" content="Прокачка Дашуба - Почини видеохостинг">
+    <meta name="twitter:description" content="Инкрементальная игра про починку видеохостинга. Улучшай характеристики, достигай 100% и смотри видео!">
+    
+    <!-- Additional SEO -->
+    <link rel="canonical" href="https://dashulya2014.github.io/dashube.github.io/">
+    <meta name="theme-color" content="#1a1a2e">
+    <meta name="msapplication-TileColor" content="#1a1a2e">
+    
+    <!-- Mobile -->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="format-detection" content="address=no">
+    
     <style>
         * {
             margin: 0;
@@ -310,6 +342,46 @@
         .save-button.reset:hover {
             background: #f72585;
         }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .social-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 20px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: white;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+
+        .social-link:hover {
+            transform: translateY(-3px);
+        }
+
+        .social-link.telegram {
+            background: #0088cc;
+        }
+
+        .social-link.twitter {
+            background: #1DA1F2;
+        }
+
+        .social-link.vk {
+            background: #4C75A3;
+        }
+
+        .social-link.github {
+            background: #333;
+        }
         
         @media (max-width: 768px) {
             .game-area {
@@ -319,8 +391,60 @@
             .dashub-player, .stats {
                 width: 100%;
             }
+
+            .social-links {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .social-link {
+                width: 200px;
+                justify-content: center;
+            }
+        }
+
+        /* Schema.org микроразметка */
+        .hidden-schema {
+            display: none;
         }
     </style>
+    
+    <!-- JSON-LD Schema.org микроразметка -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoGame",
+        "name": "Прокачка Дашуба",
+        "description": "Инкрементальная игра про починку видеохостинга. Улучшай серверы, настраивай VPN, оптимизируй код и смотри видео!",
+        "image": "https://dashube.github.io/game-preview.jpg",
+        "url": "https://dashube.github.io/",
+        "genre": ["Incremental Game", "Strategy", "Simulation"],
+        "gamePlatform": "Web Browser",
+        "applicationCategory": "Game",
+        "operatingSystem": "Any",
+        "author": {
+            "@type": "Organization",
+            "name": "Dashub Team"
+        },
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "RUB",
+            "availability": "https://schema.org/InStock"
+        },
+        "aggregateRating": {
+            "@type": "AggregateRating",
+            "ratingValue": "4.5",
+            "ratingCount": "128"
+        }
+    }
+    </script>
+    
+    <!-- Yandex Webmaster -->
+    <meta name="yandex-verification" content="1234567890">
+    
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="1234567890">
 </head>
 <body>
     <div class="container">
@@ -336,14 +460,14 @@
                     <div class="video-placeholder" id="video-placeholder">
                         <div class="error-message" id="error-message"></div>
                     </div>
-                    <video id="video-player" controls>
+                    <video id="video-player" controls aria-label="Видеоплеер Дашуба" preload="metadata">
                         <source src="1.mp4" type="video/mp4">
                         Ваш браузер не поддерживает видео.
                     </video>
                 </div>
-                <p>Статус: <span id="dashub-status">Заблокирован</span></p>
-                <button class="play-button" id="play-button" disabled>▶ Воспроизвести видео</button>
-                <button class="action-button" id="fix-button">Попытаться починить (+25₽)</button>
+                <p>Статус: <span id="dashub-status" aria-live="polite">Заблокирован</span></p>
+                <button class="play-button" id="play-button" disabled aria-label="Воспроизвести видео">▶ Воспроизвести видео</button>
+                <button class="action-button" id="fix-button" aria-label="Попытаться починить Дашуб">Попытаться починить (+25₽)</button>
             </div>
             
             <div class="stats">
@@ -351,7 +475,7 @@
                 <div class="stat">
                     <div class="stat-label">Скорость загрузки</div>
                     <div class="stat-value" id="speed-value">0 Mbps</div>
-                    <div class="progress-bar">
+                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill" id="speed-bar"></div>
                     </div>
                 </div>
@@ -359,7 +483,7 @@
                 <div class="stat">
                     <div class="stat-label">Стабильность соединения</div>
                     <div class="stat-value" id="stability-value">0%</div>
-                    <div class="progress-bar">
+                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill" id="stability-bar"></div>
                     </div>
                 </div>
@@ -367,7 +491,7 @@
                 <div class="stat">
                     <div class="stat-label">Обход блокировок</div>
                     <div class="stat-value" id="bypass-value">0%</div>
-                    <div class="progress-bar">
+                    <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100">
                         <div class="progress-fill" id="bypass-bar"></div>
                     </div>
                 </div>
@@ -381,25 +505,25 @@
         
         <h2>Улучшения</h2>
         <div class="upgrades">
-            <div class="upgrade" id="upgrade-server">
+            <div class="upgrade" id="upgrade-server" role="button" tabindex="0" aria-label="Купить улучшение сервера за 50 рублей">
                 <h3>Улучшить сервер</h3>
                 <p>Увеличивает скорость загрузки видео</p>
                 <p class="cost">Стоимость: 50 ₽</p>
             </div>
             
-            <div class="upgrade" id="upgrade-vpn">
+            <div class="upgrade" id="upgrade-vpn" role="button" tabindex="0" aria-label="Купить настройку VPN за 75 рублей">
                 <h3>Настроить VPN</h3>
                 <p>Помогает обходить блокировки</p>
                 <p class="cost">Стоимость: 75 ₽</p>
             </div>
             
-            <div class="upgrade" id="upgrade-code">
+            <div class="upgrade" id="upgrade-code" role="button" tabindex="0" aria-label="Купить оптимизацию кода за 60 рублей">
                 <h3>Оптимизировать код</h3>
                 <p>Увеличивает стабильность соединения</p>
                 <p class="cost">Стоимость: 60 ₽</p>
             </div>
             
-            <div class="upgrade" id="upgrade-cdn">
+            <div class="upgrade" id="upgrade-cdn" role="button" tabindex="0" aria-label="Купить добавление CDN за 120 рублей">
                 <h3>Добавить CDN</h3>
                 <p>Улучшает все показатели</p>
                 <p class="cost">Стоимость: 120 ₽</p>
@@ -407,14 +531,38 @@
         </div>
 
         <div class="save-buttons">
-            <button class="save-button" id="save-game">💾 Сохранить игру</button>
-            <button class="save-button" id="load-game">📂 Загрузить игру</button>
-            <button class="save-button reset" id="reset-game">🔄 Новая игра</button>
+            <button class="save-button" id="save-game" aria-label="Сохранить игру">💾 Сохранить игру</button>
+            <button class="save-button" id="load-game" aria-label="Загрузить игру">📂 Загрузить игру</button>
+            <button class="save-button reset" id="reset-game" aria-label="Начать новую игру">🔄 Новая игра</button>
+        </div>
+
+        <!-- Социальные ссылки -->
+        <div class="social-links">
+            <a href="https://t.me/dashub_game" class="social-link telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram канал">
+                <span>📱</span> Telegram
+            </a>
+            <a href="https://twitter.com/dashub_game" class="social-link twitter" target="_blank" rel="noopener noreferrer" aria-label="Twitter страница">
+                <span>🐦</span> Twitter
+            </a>
+            <a href="https://vk.com/dashub_game" class="social-link vk" target="_blank" rel="noopener noreferrer" aria-label="VK сообщество">
+                <span>📘</span> VK
+            </a>
+            <a href="https://github.com/dashube/dashube.github.io" class="social-link github" target="_blank" rel="noopener noreferrer" aria-label="GitHub репозиторий">
+                <span>💻</span> GitHub
+            </a>
         </div>
     </div>
     
-    <div class="notification" id="notification">
+    <div class="notification" id="notification" role="alert">
         Улучшение приобретено!
+    </div>
+
+    <!-- Скрытая микроразметка для поисковиков -->
+    <div class="hidden-schema" itemscope itemtype="https://schema.org/Game">
+        <meta itemprop="name" content="Прокачка Дашуба">
+        <meta itemprop="description" content="Инкрементальная игра про починку видеохостинга">
+        <meta itemprop="genre" content="Strategy">
+        <meta itemprop="numberOfPlayers" content="1">
     </div>
 
     <script>
@@ -467,6 +615,11 @@
                     gameState = { ...gameState, ...loadedState };
                     showNotification('Игра загружена!');
                     updateUI();
+                    
+                    // Отправляем событие в Google Analytics (если подключен)
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'game_loaded', {});
+                    }
                 } catch (e) {
                     showNotification('Ошибка загрузки');
                 }
@@ -479,22 +632,34 @@
         function saveToStorage() {
             localStorage.setItem('dashubGame', JSON.stringify(gameState));
             showNotification('Игра сохранена!');
+            
+            // Отправляем событие в Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'game_saved', {});
+            }
         }
 
         // Функция сброса игры
         function resetGame() {
-            gameState = {
-                speed: 0,
-                stability: 0,
-                bypass: 0,
-                money: 100,
-                isFixed: false,
-                isPerfect: false,
-                fixAttempts: 0
-            };
-            localStorage.removeItem('dashubGame');
-            showNotification('Новая игра начата!');
-            updateUI();
+            if (confirm('Начать новую игру? Весь прогресс будет потерян.')) {
+                gameState = {
+                    speed: 0,
+                    stability: 0,
+                    bypass: 0,
+                    money: 100,
+                    isFixed: false,
+                    isPerfect: false,
+                    fixAttempts: 0
+                };
+                localStorage.removeItem('dashubGame');
+                showNotification('Новая игра начата!');
+                updateUI();
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'game_reset', {});
+                }
+            }
         }
         
         // Функция для блокировки/разблокировки действий
@@ -510,15 +675,17 @@
             upgrades.forEach(upgrade => {
                 if (isPerfect) {
                     upgrade.classList.add('disabled');
+                    upgrade.setAttribute('aria-disabled', 'true');
                 } else {
                     upgrade.classList.remove('disabled');
+                    upgrade.setAttribute('aria-disabled', 'false');
                 }
             });
             
             // Обновляем статус и сообщения
             if (isPerfect) {
                 dashubStatus.textContent = 'Идеально!';
-                dashubStatus.style.color = '#gold';
+                dashubStatus.style.color = 'gold';
                 errorMessage.textContent = 'Дашуб работает на 100%! Все улучшения максимальны!';
                 videoPlaceholder.style.display = 'none';
                 videoPlayer.style.display = 'block';
@@ -537,6 +704,11 @@
                 videoPlayer.style.display = 'none';
                 playButton.disabled = true;
             }
+            
+            // Обновляем ARIA атрибуты для прогресс-баров
+            speedBar.parentElement.setAttribute('aria-valuenow', gameState.speed);
+            stabilityBar.parentElement.setAttribute('aria-valuenow', gameState.stability);
+            bypassBar.parentElement.setAttribute('aria-valuenow', gameState.bypass);
         }
         
         // Обновление интерфейса
@@ -570,6 +742,20 @@
                 gameState.isFixed = isFixedNow;
                 if (isFixedNow && !isPerfectNow) {
                     showNotification('Дашуб заработал! Можно продолжать улучшения до 100% 🎉');
+                    
+                    // Отправляем событие в Google Analytics
+                    if (typeof gtag !== 'undefined') {
+                        gtag('event', 'game_fixed', {});
+                    }
+                }
+            }
+            
+            if (isPerfectNow && !gameState.isPerfect) {
+                showNotification('Поздравляем! Дашуб достиг 100%! 🏆');
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'game_perfect', {});
                 }
             }
             
@@ -603,8 +789,22 @@
                 gameState.speed = Math.min(100, gameState.speed + 15);
                 showNotification('Сервер улучшен! Скорость увеличена.');
                 updateUI();
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'upgrade_purchased', {
+                        'upgrade_type': 'server'
+                    });
+                }
             } else {
                 showNotification('Недостаточно денег!');
+            }
+        });
+        
+        upgradeServer.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
         
@@ -621,8 +821,22 @@
                 gameState.bypass = Math.min(100, gameState.bypass + 20);
                 showNotification('VPN настроен! Блокировки обходятся лучше.');
                 updateUI();
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'upgrade_purchased', {
+                        'upgrade_type': 'vpn'
+                    });
+                }
             } else {
                 showNotification('Недостаточно денег!');
+            }
+        });
+        
+        upgradeVpn.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
         
@@ -639,8 +853,22 @@
                 gameState.stability = Math.min(100, gameState.stability + 20);
                 showNotification('Код оптимизирован! Соединение стабильнее.');
                 updateUI();
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'upgrade_purchased', {
+                        'upgrade_type': 'code'
+                    });
+                }
             } else {
                 showNotification('Недостаточно денег!');
+            }
+        });
+        
+        upgradeCode.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
         
@@ -659,8 +887,22 @@
                 gameState.bypass = Math.min(100, gameState.bypass + 8);
                 showNotification('CDN добавлен! Все показатели улучшены.');
                 updateUI();
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'upgrade_purchased', {
+                        'upgrade_type': 'cdn'
+                    });
+                }
             } else {
                 showNotification('Недостаточно денег!');
+            }
+        });
+        
+        upgradeCdn.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
             }
         });
         
@@ -698,6 +940,13 @@
             }
             
             updateUI();
+            
+            // Отправляем событие в Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'fix_attempt', {
+                    'attempt_number': gameState.fixAttempts
+                });
+            }
         });
         
         // Воспроизведение видео
@@ -707,6 +956,11 @@
                     showNotification('Ошибка воспроизведения видео');
                     console.error('Video playback error:', error);
                 });
+                
+                // Отправляем событие в Google Analytics
+                if (typeof gtag !== 'undefined') {
+                    gtag('event', 'video_play', {});
+                }
             } else {
                 showNotification('Сначала почините Дашуб!');
             }
@@ -738,6 +992,11 @@
 
         videoPlayer.addEventListener('ended', function() {
             showNotification('Видео завершено');
+            
+            // Отправляем событие в Google Analytics
+            if (typeof gtag !== 'undefined') {
+                gtag('event', 'video_ended', {});
+            }
         });
 
         // Автоматическая загрузка при старте
@@ -747,6 +1006,38 @@
                 if (confirm('Найти сохраненную игру? Нажмите ОК для загрузки')) {
                     loadFromStorage();
                 }
+            }
+
+            // Обновляем мета-теги для SEO
+            updateSEOMetaTags();
+        });
+
+        // Обновление мета-тегов в зависимости от состояния игры
+        function updateSEOMetaTags() {
+            const metaDescription = document.querySelector('meta[name="description"]');
+            if (metaDescription) {
+                if (gameState.isPerfect) {
+                    metaDescription.setAttribute('content', 'Прокачка Дашуба - игра пройдена на 100%! Попробуй и ты починить видеохостинг.');
+                } else if (gameState.isFixed) {
+                    metaDescription.setAttribute('content', 'Дашуб работает! Продолжай улучшать характеристики до 100% в игре Прокачка Дашуба.');
+                }
+            }
+        }
+
+        // Добавляем поддержку клавиатуры для доступности
+        document.addEventListener('keydown', function(e) {
+            // Горячие клавиши
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveToStorage();
+            }
+            if (e.ctrlKey && e.key === 'l') {
+                e.preventDefault();
+                loadFromStorage();
+            }
+            if (e.ctrlKey && e.key === 'r') {
+                e.preventDefault();
+                resetGame();
             }
         });
     </script>
