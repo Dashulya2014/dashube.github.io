@@ -382,6 +382,23 @@
         .social-link.github {
             background: #333;
         }
+
+        .vpn-message {
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(247, 37, 133, 0.2), rgba(76, 201, 240, 0.2));
+            border-radius: 10px;
+            border-left: 4px solid #f72585;
+            text-align: center;
+            font-size: 0.95rem;
+            animation: fadeIn 0.5s ease;
+            border: 1px solid rgba(247, 37, 133, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         
         @media (max-width: 768px) {
             .game-area {
@@ -416,8 +433,7 @@
         "@type": "VideoGame",
         "name": "Прокачка Дашуба",
         "description": "Инкрементальная игра про починку видеохостинга. Улучшай серверы, настраивай VPN, оптимизируй код и смотри видео!",
-        "image": "https://dashube.github.io/game-preview.jpg",
-        "url": "https://dashube.github.io/",
+        "url": "https://dashulya2014.github.io/dashube.github.io/",
         "genre": ["Incremental Game", "Strategy", "Simulation"],
         "gamePlatform": "Web Browser",
         "applicationCategory": "Game",
@@ -431,20 +447,9 @@
             "price": "0",
             "priceCurrency": "RUB",
             "availability": "https://schema.org/InStock"
-        },
-        "aggregateRating": {
-            "@type": "AggregateRating",
-            "ratingValue": "4.5",
-            "ratingCount": "128"
         }
     }
     </script>
-    
-    <!-- Yandex Webmaster -->
-    <meta name="yandex-verification" content="1234567890">
-    
-    <!-- Google Search Console -->
-    <meta name="google-site-verification" content="1234567890">
 </head>
 <body>
     <div class="container">
@@ -530,26 +535,16 @@
             </div>
         </div>
 
+        <!-- Блок мудрых сообщений про VPN -->
+        <div class="vpn-message" id="vpn-message">
+            <span style="color: #f72585; font-weight: bold;">💡 Жизненно:</span> 
+            <span id="vpn-wisdom">Бесплатный VPN — 70% и сиди с бубном. Платный VPN — 100% и никаких проблем. Но хочешь 100% — плати, как за хороший VPN!</span>
+        </div>
+
         <div class="save-buttons">
             <button class="save-button" id="save-game" aria-label="Сохранить игру">💾 Сохранить игру</button>
             <button class="save-button" id="load-game" aria-label="Загрузить игру">📂 Загрузить игру</button>
             <button class="save-button reset" id="reset-game" aria-label="Начать новую игру">🔄 Новая игра</button>
-        </div>
-
-        <!-- Социальные ссылки -->
-        <div class="social-links">
-            <a href="https://t.me/dashub_game" class="social-link telegram" target="_blank" rel="noopener noreferrer" aria-label="Telegram канал">
-                <span>📱</span> Telegram
-            </a>
-            <a href="https://twitter.com/dashub_game" class="social-link twitter" target="_blank" rel="noopener noreferrer" aria-label="Twitter страница">
-                <span>🐦</span> Twitter
-            </a>
-            <a href="https://vk.com/dashub_game" class="social-link vk" target="_blank" rel="noopener noreferrer" aria-label="VK сообщество">
-                <span>📘</span> VK
-            </a>
-            <a href="https://github.com/dashube/dashube.github.io" class="social-link github" target="_blank" rel="noopener noreferrer" aria-label="GitHub репозиторий">
-                <span>💻</span> GitHub
-            </a>
         </div>
     </div>
     
@@ -583,6 +578,20 @@
         const REQUIRED_BYPASS = 70;
         const PERFECT_VALUE = 100;
         
+        // Мудрые сообщения в зависимости от прогресса
+        const wisdomMessages = [
+            "Бесплатный VPN — 70% и сиди с бубном. Платный VPN — 100% и никаких проблем.",
+            "Деньги есть? Тогда 100% скорость! Денег нет? Терпи 70% и думай, что так и надо.",
+            "70% — это как бесплатный VPN: вроде работает, но бесит постоянно.",
+            "100% — как хороший VPN: дорого, но кайфуешь. 70% — даром, но ссылки вечно не грузятся.",
+            "Заплатил за VPN — забыл про блокировки. Не заплатил — сиди, чини Дашуб.",
+            "70% — это как Роскомнадзор: вроде есть интернет, но до всего не достучаться.",
+            "100% — это как старый добрый YouTube без замедления. Помните, было такое?",
+            "Хочешь качество? Плати. Хочешь даром? Терпи 70% и радуйся, что хоть так.",
+            "70% — работает? Работает. Но могло бы быть лучше, если бы не жлобство. Как с бесплатным VPN.",
+            "100% — красота! Как платный VPN: дорого, но ощущения совсем другие. Зато как работает!"
+        ];
+        
         // Элементы DOM
         const speedValue = document.getElementById('speed-value');
         const stabilityValue = document.getElementById('stability-value');
@@ -594,6 +603,7 @@
         const playButton = document.getElementById('play-button');
         const videoPlayer = document.getElementById('video-player');
         const videoPlaceholder = document.getElementById('video-placeholder');
+        const vpnWisdom = document.getElementById('vpn-wisdom');
         
         const speedBar = document.getElementById('speed-bar');
         const stabilityBar = document.getElementById('stability-bar');
@@ -606,6 +616,9 @@
         const upgradeCdn = document.getElementById('upgrade-cdn');
         const upgrades = [upgradeServer, upgradeVpn, upgradeCode, upgradeCdn];
         
+        // Выбираем случайное сообщение при загрузке
+        vpnWisdom.textContent = wisdomMessages[Math.floor(Math.random() * wisdomMessages.length)];
+        
         // Функция загрузки из localStorage
         function loadFromStorage() {
             const saved = localStorage.getItem('dashubGame');
@@ -615,11 +628,6 @@
                     gameState = { ...gameState, ...loadedState };
                     showNotification('Игра загружена!');
                     updateUI();
-                    
-                    // Отправляем событие в Google Analytics (если подключен)
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'game_loaded', {});
-                    }
                 } catch (e) {
                     showNotification('Ошибка загрузки');
                 }
@@ -632,11 +640,6 @@
         function saveToStorage() {
             localStorage.setItem('dashubGame', JSON.stringify(gameState));
             showNotification('Игра сохранена!');
-            
-            // Отправляем событие в Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'game_saved', {});
-            }
         }
 
         // Функция сброса игры
@@ -654,11 +657,6 @@
                 localStorage.removeItem('dashubGame');
                 showNotification('Новая игра начата!');
                 updateUI();
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'game_reset', {});
-                }
             }
         }
         
@@ -742,21 +740,13 @@
                 gameState.isFixed = isFixedNow;
                 if (isFixedNow && !isPerfectNow) {
                     showNotification('Дашуб заработал! Можно продолжать улучшения до 100% 🎉');
-                    
-                    // Отправляем событие в Google Analytics
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'game_fixed', {});
-                    }
+                    vpnWisdom.textContent = wisdomMessages[8]; // 70% сообщение
                 }
             }
             
             if (isPerfectNow && !gameState.isPerfect) {
                 showNotification('Поздравляем! Дашуб достиг 100%! 🏆');
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'game_perfect', {});
-                }
+                vpnWisdom.textContent = wisdomMessages[9]; // 100% сообщение
             }
             
             gameState.isPerfect = isPerfectNow;
@@ -789,13 +779,6 @@
                 gameState.speed = Math.min(100, gameState.speed + 15);
                 showNotification('Сервер улучшен! Скорость увеличена.');
                 updateUI();
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'upgrade_purchased', {
-                        'upgrade_type': 'server'
-                    });
-                }
             } else {
                 showNotification('Недостаточно денег!');
             }
@@ -821,13 +804,6 @@
                 gameState.bypass = Math.min(100, gameState.bypass + 20);
                 showNotification('VPN настроен! Блокировки обходятся лучше.');
                 updateUI();
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'upgrade_purchased', {
-                        'upgrade_type': 'vpn'
-                    });
-                }
             } else {
                 showNotification('Недостаточно денег!');
             }
@@ -853,13 +829,6 @@
                 gameState.stability = Math.min(100, gameState.stability + 20);
                 showNotification('Код оптимизирован! Соединение стабильнее.');
                 updateUI();
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'upgrade_purchased', {
-                        'upgrade_type': 'code'
-                    });
-                }
             } else {
                 showNotification('Недостаточно денег!');
             }
@@ -887,13 +856,6 @@
                 gameState.bypass = Math.min(100, gameState.bypass + 8);
                 showNotification('CDN добавлен! Все показатели улучшены.');
                 updateUI();
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'upgrade_purchased', {
-                        'upgrade_type': 'cdn'
-                    });
-                }
             } else {
                 showNotification('Недостаточно денег!');
             }
@@ -940,13 +902,6 @@
             }
             
             updateUI();
-            
-            // Отправляем событие в Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'fix_attempt', {
-                    'attempt_number': gameState.fixAttempts
-                });
-            }
         });
         
         // Воспроизведение видео
@@ -956,11 +911,6 @@
                     showNotification('Ошибка воспроизведения видео');
                     console.error('Video playback error:', error);
                 });
-                
-                // Отправляем событие в Google Analytics
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'video_play', {});
-                }
             } else {
                 showNotification('Сначала почините Дашуб!');
             }
@@ -992,11 +942,6 @@
 
         videoPlayer.addEventListener('ended', function() {
             showNotification('Видео завершено');
-            
-            // Отправляем событие в Google Analytics
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'video_ended', {});
-            }
         });
 
         // Автоматическая загрузка при старте
